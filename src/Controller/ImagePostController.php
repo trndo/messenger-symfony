@@ -14,7 +14,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -73,8 +75,11 @@ class ImagePostController extends AbstractController
         $entityManager->persist($imagePost);
         $entityManager->flush();
 
-        $message = new AddPonkaToImage($imagePost);
-        $messageBus->dispatch($message);
+        $message = new AddPonkaToImage($imagePost->getId());
+
+        $messageBus->dispatch($message,[
+            new DelayStamp(5000)
+        ]);
 
         return $this->toJson($imagePost, 201);
     }
