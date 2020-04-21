@@ -27,6 +27,16 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
+    App\MessageHandler\Command\:
+        autoconfigure: false
+        resource: '../src/MessageHandler/Command'
+        tags: [{ name: messenger.message_handler, bus: command.bus }]
+
+    App\MessageHandler\Event\:
+        autoconfigure: false
+        resource: '../src/MessageHandler/Event'
+        tags: [{ name: messenger.message_handler, bus: event.bus }]
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 

@@ -26,8 +26,10 @@ class ImagePostController extends AbstractController
 {
     /**
      * @Route("/api/images", methods="GET")
+     * @param ImagePostRepository $repository
+     * @return JsonResponse
      */
-    public function list(ImagePostRepository $repository)
+    public function list(ImagePostRepository $repository): JsonResponse
     {
         $posts = $repository->findBy([], ['createdAt' => 'DESC']);
 
@@ -42,7 +44,6 @@ class ImagePostController extends AbstractController
      * @param ValidatorInterface $validator
      * @param PhotoFileManager $photoManager
      * @param EntityManagerInterface $entityManager
-     * @param PhotoPonkaficator $ponkaficator
      * @param MessageBusInterface $messageBus
      * @return JsonResponse
      * @throws \Exception
@@ -52,9 +53,8 @@ class ImagePostController extends AbstractController
         ValidatorInterface $validator,
         PhotoFileManager $photoManager,
         EntityManagerInterface $entityManager,
-        PhotoPonkaficator $ponkaficator,
         MessageBusInterface $messageBus
-    ) {
+    ):JsonResponse {
         /** @var UploadedFile $imageFile */
         $imageFile = $request->files->get('file');
 
@@ -86,9 +86,14 @@ class ImagePostController extends AbstractController
 
     /**
      * @Route("/api/images/{id}", methods="DELETE")
+     * @param ImagePost $imagePost
+     * @param MessageBusInterface $messageBus
+     * @return Response
      */
-    public function delete(ImagePost $imagePost, MessageBusInterface $messageBus)
-    {
+    public function delete(
+        ImagePost $imagePost,
+        MessageBusInterface $messageBus
+    ):Response {
         $message = new DeleteImagePost($imagePost);
         $messageBus->dispatch($message);
 
@@ -97,8 +102,10 @@ class ImagePostController extends AbstractController
 
     /**
      * @Route("/api/images/{id}", methods="GET", name="get_image_post_item")
+     * @param ImagePost $imagePost
+     * @return JsonResponse
      */
-    public function getItem(ImagePost $imagePost)
+    public function getItem(ImagePost $imagePost): JsonResponse
     {
         return $this->toJson($imagePost);
     }
